@@ -1,0 +1,45 @@
+name: Build Kivy APK
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.12'
+
+    - name: Install dependencies
+      run: |
+        sudo apt update
+        sudo apt install -y python3-pip git unzip openjdk-17-jdk
+        pip install --upgrade pip
+        pip install kivy buildozer
+
+    - name: Initialize Buildozer
+      run: |
+        buildozer init
+        # Replace default spec values
+        sed -i 's/title = My Application/title = HelloKivy/' buildozer.spec
+        sed -i 's/package.name = myapp/package.name = hellokivy/' buildozer.spec
+        sed -i 's/package.domain = org.test/package.domain = org.example/' buildozer.spec
+        echo "source.include_exts = py,png,jpg,kv,atlas" >> buildozer.spec
+
+    - name: Build APK
+      run: |
+        buildozer -v android debug
+
+    - name: Upload APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: HelloKivy-apk
+        path: bin/*.apk
