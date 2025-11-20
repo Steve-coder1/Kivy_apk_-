@@ -1,4 +1,4 @@
-name: Build Kivy APK
+name: Build Kivy APK using Docker
 
 on:
   push:
@@ -6,39 +6,27 @@ on:
       - main
 
 jobs:
-  build:
+  build-apk:
     runs-on: ubuntu-latest
-    timeout-minutes: 60  # Builds can take a while
+    timeout-minutes: 60
 
     steps:
-    - name: Checkout code
+    - name: Checkout repo
       uses: actions/checkout@v3
 
-    - name: Install system dependencies
-      run: |
-        sudo apt update
-        sudo apt install -y python3-pip git unzip openjdk-17-jdk \
-        python3-setuptools python3-wheel python3-dev zlib1g-dev \
-        libncurses5 libstdc++6 libffi-dev libsqlite3-dev libssl-dev \
-        libjpeg-dev libfreetype6-dev libsdl2-dev libsdl2-image-dev \
-        libsdl2-mixer-dev libsdl2-ttf-dev
-        pip install --upgrade pip setuptools wheel
-
-    - name: Install Python packages
-      run: |
-        pip install kivy buildozer cython
-
-    - name: Initialize Buildozer
-      run: |
-        buildozer init
-        sed -i 's/title = My Application/title = HelloKivy/' buildozer.spec
-        sed -i 's/package.name = myapp/package.name = hellokivy/' buildozer.spec
-        sed -i 's/package.domain = org.test/package.domain = org.example/' buildozer.spec
-        echo "source.include_exts = py,kv,png,jpg,atlas" >> buildozer.spec
-
-    - name: Build APK
-      run: |
-        buildozer -v android debug
+    - name: Build APK with Kivy Buildozer Docker
+      uses: addnab/docker-run-action@v3
+      with:
+        image: kivy/buildozer:latest
+        options: -v ${{ github.workspace }}:/home/buildozer/project
+        run: |
+          cd /home/buildozer/project
+          buildozer init
+          sed -i 's/title = My Application/title = HelloKivy/' buildozer.spec
+          sed -i 's/package.name = myapp/package.name = hellokivy/' buildozer.spec
+          sed -i 's/package.domain = org.test/package.domain = org.example/' buildozer.spec
+          echo "source.include_exts = py,kv,png,jpg,atlas" >> buildozer.spec
+          buildozer -v android debug
 
     - name: Upload APK artifact
       uses: actions/upload-artifact@v4
