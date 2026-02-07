@@ -1,4 +1,3 @@
-name: Build APK
 
 on:
   push:
@@ -8,17 +7,14 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    
     steps:
     - uses: actions/checkout@v4
     
-    - name: Build with Buildozer
-      uses: ArtemSBulgakov/buildozer-action@v1
-      id: buildozer
-      with:
-        command: buildozer android debug
-        buildozer_version: stable
-      env:
-        USER: runner
+    - name: Build with Buildozer in Docker
+      run: |
+        docker run --rm -v "$PWD":/home/user/app kivy/buildozer:latest \
+          bash -c "cd /home/user/app && buildozer android debug"
     
     - name: Upload APK
       uses: actions/upload-artifact@v4
