@@ -1,8 +1,10 @@
 from kivy.app import App
 from kivy.uix.label import Label
 
-class MyApp(App):
+class HelloWorldApp(App):
     def build(self):
-        return Label(text="Hello World!", font_size=40)
+        # This returns the root widget of your application
+        return Label(text='Hello, Kivy!')
 
-MyApp().run()
+if __name__ == '__main__':
+    HelloWorldApp().run()
