@@ -1,21 +1,24 @@
 name: Build APK
-on: [push, pull_request]
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-
-      # This is the line that was broken. It is fixed now:
-      - name: Build with Buildozer
-        uses: ArtemSerebriennikov/buildozer-action@v1
-        with:
-          workdir: .
-          buildozer_version: stable
-
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: package
-          path: bin/*.apk
+    - uses: actions/checkout@v3
+    
+    - name: Build with Buildozer
+      uses: ArtemSBulgakov/buildozer-action@v1
+      with:
+        command: buildozer android debug
+        buildozer_version: stable
+    
+    - name: Upload APK
+      uses: actions/upload-artifact@v3
+      with:
+        name: app-debug
+        path: bin/*.apk
