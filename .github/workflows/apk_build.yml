@@ -1,9 +1,13 @@
+name: Build APK
+on: [push, pull_request]
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
+      # This is the line that was broken. It is fixed now:
       - name: Build with Buildozer
         uses: ArtemSerebriennikov/buildozer-action@v1
         with:
@@ -13,5 +17,5 @@ jobs:
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: my-kivy-app
+          name: package
           path: bin/*.apk
